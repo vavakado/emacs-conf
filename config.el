@@ -231,7 +231,7 @@
         org-modern-progress nil
         org-modern-fold-stars '(("✦" . "✧")   ; sparkle closed, sparkle open
                                 ("✶" . "✷")   ; twinkly star variants
-                                ("♥" . "❥")   ; hearts
+                                ("♥" . "♡")   ; hearts
                                 ("★" . "☆")   ; five-ended star
                                 ("♦" . "♢"))))  ; diamond suit
 
