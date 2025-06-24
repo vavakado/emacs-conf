@@ -77,13 +77,18 @@ methods the save hook cannot detect, like file synchronization."
   (org-agenda-files-track-cleanup-files 'full)
   (message "Initialized agenda files"))
 
-(defun my/org-agenda-files-track-predicate ()
-  "Only track files with specific TODO keywords or checkbox markers."
-  (let ((pattern (regexp-opt '("TODO" "STRT" "WAIT" "IDEA" "PROJ" "[ ]" "[-]" "[?]"))))
-    (save-excursion
-      (goto-char (point-min))
-      (re-search-forward pattern nil t))))
-(setq org-agenda-files-track-predicate #'my/org-agenda-files-track-predicate)
+(after! org-agenda-files-track
+  (defun my/org-agenda-files-track-predicate ()
+    "Only track files with specific TODO keywords, checkbox markers,
+ or SCHEDULED/DEADLINE entries."
+    (let ((pattern (regexp-opt '("TODO" "STRT" "WAIT" "IDEA" "PROJ" "[ ]" "[-]" "[?]" "SCHEDULED" "DEADLINE"))))
+      (save-excursion
+        (goto-char (point-min))
+        (re-search-forward pattern nil t))))
+
+  (setq org-agenda-files-track-predicate #'my/org-agenda-files-track-predicate))
+
+
 
 ;; I prefer to log TODO creation also
 (setq org-treat-insert-todo-heading-as-state-change t)
