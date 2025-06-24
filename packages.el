@@ -50,3 +50,4 @@
 (unpin! org-roam)
 (package! org-roam-ui)
 (package! org-habit-stats)
+(package! org-agenda-files-track)
