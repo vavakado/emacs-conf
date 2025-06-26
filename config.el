@@ -212,6 +212,12 @@ methods the save hook cannot detect, like file synchronization."
         (format "%d%%" pct)
       "--%")))
 
+(defun my/org-agenda-skip-if-has-tag (tag)
+  "Skip current entry if it has TAG."
+  (let ((tags (org-get-tags)))
+    (when (member tag tags)
+      (or (outline-next-heading) (point-max)))))
+
 
 (setq org-agenda-custom-commands
       '(("n" "Agenda and all TODOs" ((agenda "") (alltodo "")))
@@ -228,16 +234,13 @@ methods the save hook cannot detect, like file synchronization."
                    (org-agenda-include-diary nil)
                    (org-habit-show-all-today t)
                    (org-agenda-overriding-header " Schedule +  Habits")))
-          (todo "STRT"
+          (tags "+books+TODO=\"STRT\""
                 ((org-agenda-overriding-header " Currently Reading Books")
-                 (org-agenda-prefix-format "   %?-13t %s")
-                 (org-agenda-skip-function
-                  (lambda ()
-                    (let ((tags (org-get-tags)))
-                      (unless (member "books" tags)
-                        (org-agenda-skip-entry-if 'everything)))))))
-
-          ;; only books
+                 (org-agenda-prefix-format "   %?-13t %s")))
+          (todo "STRT"
+                ((org-agenda-overriding-header "󰦖 Currently doing")
+                 (org-agenda-prefix-format "  %?-13t %s")
+                 (org-agenda-skip-function '(my/org-agenda-skip-if-has-tag "books"))))
           (todo "PLAYING"
                 ((org-agenda-overriding-header "󰮂 Currently Playing Games")
                  (org-agenda-prefix-format '((todo . "%?-13t %s [%e] (%(my/org-agenda-effort-percentage)) ")))
@@ -256,6 +259,7 @@ methods the save hook cannot detect, like file synchronization."
            (org-agenda-sorting-strategy '(priority-down alpha-up)))))))
 
 (after! org
+  (setq org-crypt-disable-auto-save t)
 
   (setq org-agenda-span 14
         org-agenda-start-day nil
