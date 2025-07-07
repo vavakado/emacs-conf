@@ -241,6 +241,10 @@ methods the save hook cannot detect, like file synchronization."
                 ((org-agenda-overriding-header "󰦖 Currently doing")
                  (org-agenda-prefix-format "  %?-13t %s")
                  (org-agenda-skip-function '(my/org-agenda-skip-if-has-tag "books"))))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "󰒭 Shit I WILL do")
+                 (org-agenda-prefix-format "  %?-13t %s")
+                 (org-agenda-skip-function '(my/org-agenda-skip-if-has-tag "books"))))
           (todo "PLAYING"
                 ((org-agenda-overriding-header "󰮂 Currently Playing Games")
                  (org-agenda-prefix-format '((todo . "%?-13t %s [%e] (%(my/org-agenda-effort-percentage)) ")))
@@ -277,44 +281,133 @@ methods the save hook cannot detect, like file synchronization."
 (setq org-scheduled-past-days 0) ;; agenda not show missed SCHEDULED items
 
 ;; todo keywords
-(setq org-todo-keywords
-      '((sequence
-         "TODO(t)"  ; A task that needs doing & is ready to do
-         "STRT(s!)"  ; A task that is in progress
-         "WAIT(w@/!)"  ; Something external is holding up this task
-         "IDEA(i)"  ; An unconfirmed and unapproved task or notion
-         "PROJ(p)"  ; Project
-         "|"
-         "DONE(d!)"  ; Task successfully completed
-         "KILL(k@!)") ; Task was cancelled, aborted, or is no longer applicable
-        (sequence
-         "[ ](T)"   ; A task that needs doing
-         "[-](S)"   ; Task is in progress
-         "[?](W)"   ; Task is being held up or paused
-         "|"
-         "[X](D)"))  ; Task was completed
+(setq
+ org-todo-keywords
+ '((sequence
+    "TODO(t)"  ; A task that needs doing & is ready to do
+    "STRT(s!)"  ; A task that is in progress
+    "NEXT(n)"  ; A task that is in progress
+    "WAIT(w@/!)"  ; Something external is holding up this task
+    "IDEA(i)"  ; An unconfirmed and unapproved task or notion
+    "PROJ(p)"  ; Project
+    "|"
+    "DONE(d!)"  ; Task successfully completed
+    "KILL(k@!)") ; Task was cancelled, aborted, or is no longer applicable
+   (sequence
+    "[ ](T)"   ; A task that needs doing
+    "[-](S)"   ; Task is in progress
+    "[?](W)"   ; Task is being held up or paused
+    "|"
+    "[X](D)"))  ; Task was completed
 
-      org-todo-keyword-faces
-      '(("[-]"  . +org-todo-active)
-        ("STRT" . +org-todo-active)
-        ("[?]"  . +org-todo-onhold)
-        ("WAIT" . +org-todo-onhold)
-        ("PROJ" . +org-todo-project)
-        ("NO"   . +org-todo-cancel)
-        ("KILL" . +org-todo-cancel))
-      org-todo-keywords-for-agenda
-      '((sequence
-         "TODO(t)"  ; A task that needs doing & is ready to do
-         "STRT(s!)"  ; A task that is in progress
-         "WAIT(w@/!)"  ; Something external is holding up this task
-         "IDEA(i)"  ; An unconfirmed and unapproved task or notion
-         "PROJ(p)"  ; Project
-         "|"
-         "DONE(d!)"  ; Task successfully completed
-         "KILL(k@/!)") ; Task was cancelled, aborted, or is no longer applicable
-        (sequence
-         "[ ](T)"   ; A task that needs doing
-         "[-](S)"   ; Task is in progress
-         "[?](W)"   ; Task is being held up or paused
-         "|"
-         "[X](D)")))
+ org-todo-keyword-faces
+ '(("[-]"  . +org-todo-active)
+   ("STRT" . +org-todo-active)
+   ("NEXT" . +org-todo-active)
+   ("[?]"  . +org-todo-onhold)
+   ("WAIT" . +org-todo-onhold)
+   ("PROJ" . +org-todo-project)
+   ("NO"   . +org-todo-cancel)
+   ("KILL" . +org-todo-cancel)))
+
+(setq org-todo-keywords-for-agenda org-todo-keywords)
+
+(defun my/org-increment-episodes (&optional start-num)
+  "Increment episode numbers in TODO lines after point.
+Optional START-NUM specifies the starting episode number (default: 2).
+With prefix argument, prompts for starting number."
+  (interactive "P")
+  (let* ((start-point (point))
+         (counter (cond
+                   ((numberp start-num) start-num)
+                   (start-num (read-number "Starting episode number: " 2))
+                   (t 2)))
+         (matches 0))
+    (save-excursion
+      (goto-char start-point)
+      (while (re-search-forward "^\\(\\*+\\) TODO episode \\([0-9]+\\)" nil t)
+        (let ((old-num (string-to-number (match-string 2)))
+              (stars (match-string 1)))
+          (replace-match (format "%s TODO episode %d" stars counter))
+          (message "Episode %d → %d" old-num counter)
+          (setq counter (1+ counter))
+          (setq matches (1+ matches)))))
+    (if (> matches 0)
+        (message "Updated %d episode%s starting from episode %d"
+                 matches
+                 (if (= matches 1) "" "s")
+                 (- counter matches))
+      (message "No episodes found after point"))))
+
+(defun my/org-renumber-all-episodes (&optional start-num)
+  "Renumber all episode TODO items in the current buffer.
+Optional START-NUM specifies the starting episode number (default: 1).
+With prefix argument, prompts for starting number."
+  (interactive "P")
+  (let* ((counter (cond
+                   ((numberp start-num) start-num)
+                   (start-num (read-number "Starting episode number: " 1))
+                   (t 1)))
+         (matches 0))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^\\(\\*+\\) TODO episode \\([0-9]+\\)" nil t)
+        (let ((old-num (string-to-number (match-string 2)))
+              (stars (match-string 1)))
+          (replace-match (format "%s TODO episode %d" (match-string 0) counter) nil nil 0)
+          (setq counter (1+ counter))
+          (setq matches (1+ matches)))))
+    (if (> matches 0)
+        (message "Renumbered %d episode%s starting from episode %d"
+                 matches
+                 (if (= matches 1) "" "s")
+                 (- counter matches))
+      (message "No episodes found in buffer"))))
+
+(defun my/org-insert-next-episode ()
+  "Insert a new TODO episode with the next sequential number."
+  (interactive)
+  (let ((next-episode 1))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^\\*\\*\\* TODO episode \\([0-9]+\\)" nil t)
+        (let ((episode-num (string-to-number (match-string 1))))
+          (when (>= episode-num next-episode)
+            (setq next-episode (1+ episode-num))))))
+    (insert (format "*** TODO episode %d\n" next-episode))
+    (message "Inserted episode %d" next-episode)))
+
+(require 'notifications)
+
+(defun my/notify-after-minutes-with-message (minutes custom-message)
+  "Set a timer to send a notification with CUSTOM-MESSAGE after MINUTES minutes."
+  (interactive "nEnter number of minutes: \nsEnter notification message: ")
+  (let ((seconds (* minutes 60)))
+    ;; Send immediate confirmation
+    (notifications-notify
+     :title "Timer Started"
+     :body (format "Timer set for %d minute%s: %s"
+                   minutes
+                   (if (= minutes 1) "" "s")
+                   custom-message)
+     :urgency 'normal
+     :image-path (concat "file://" (seq-random-elt (directory-files "/home/vavakado/Pictures/media/pinterest/pfp/" t nil t))))
+
+    ;; Set timer for the notification
+    (run-at-time seconds nil
+                 (lambda ()
+                   (notifications-notify
+                    :title "Timer Finished!"
+                    :body custom-message
+                    :urgency 'critical
+                    :image-path (concat "file://" (seq-random-elt (directory-files "/home/vavakado/Pictures/media/pinterest/funny-xdxd/" t nil t))))))
+
+
+    ;; Print confirmation message
+    (message "Timer set for %d minute%s: %s"
+             minutes
+             (if (= minutes 1) "" "s")
+             custom-message)))
+
+(map! :leader :desc "Notify with message" "m ` n"  #'my/notify-after-minutes-with-message)
+(map! :leader :desc "Update agenda-files" "m ` a"  #'my/org-agenda-files-track-init)
