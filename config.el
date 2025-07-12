@@ -411,3 +411,31 @@ With prefix argument, prompts for starting number."
 
 (map! :leader :desc "Notify with message" "m ` n"  #'my/notify-after-minutes-with-message)
 (map! :leader :desc "Update agenda-files" "m ` a"  #'my/org-agenda-files-track-init)
+(defun my/export-org-langs (org-file)
+  "Export English and Russian versions of the given Org file."
+  (interactive "fSelect Org file to export: ")
+  (let* ((base-name (file-name-sans-extension org-file))
+         (en-file (concat base-name "-en.html"))
+         (ru-file (concat base-name "-ru.html")))
+    ;; English
+    (let ((org-export-select-tags '("lang_en"))
+          (org-export-exclude-tags '("lang_ru"))
+          (org-export-with-tags nil))
+      (with-current-buffer (find-file-noselect org-file)
+        (org-export-to-file 'html en-file)))
+    ;; Russian
+    (let ((org-export-select-tags '("lang_ru"))
+          (org-export-exclude-tags '("lang_en"))
+          (org-export-with-tags nil))
+      (with-current-buffer (find-file-noselect org-file)
+        (org-export-to-file 'html ru-file)))))
+
+(defun my/export-current-org-langs ()
+  "Export the current Org file into English and Russian HTML versions."
+  (interactive)
+  (let ((org-file (buffer-file-name)))
+    (unless org-file
+      (user-error "Current buffer is not visiting a file"))
+    (unless (string= (file-name-extension org-file) "org")
+      (user-error "Current file is not an Org file"))
+    (my/export-org-langs org-file)))
