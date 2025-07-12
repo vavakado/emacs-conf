@@ -53,6 +53,9 @@
 ;; change `org-directory'. It must be set before org loads!
 (add-to-list 'org-modules 'org-habit t)
 (setq org-directory "~/Documents/notes/")
+(setq deft-directory org-directory)
+(after! deft
+  (setq deft-recursive t))
 (setq org-startup-with-inline-images t)
 ;; (setq org-agenda-files (directory-files-recursively "~/Documents/notes/" "\\.org$"))
 
