@@ -32,18 +32,21 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-dracula)
+(if (string-equal (system-name) "writer")
+    (setq doom-theme 'doom-gruvbox)
+  (setq doom-theme 'doom-dracula))
 
-(setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 18)
-      doom-big-font (font-spec :family "VictorMono NFM" :size 28 :weight 'semi-bold))
+(if (string-equal (system-name) "writer")
+    (setq doom-font (font-spec :family "VictorMono Nerd Font Mono" :size 18)
+          doom-big-font (font-spec :family "VictorMono Nerd Font Mono" :size 28 :weight 'semi-bold))
+  (setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 18)
+        doom-big-font (font-spec :family "VictorMono NFM" :size 28 :weight 'semi-bold)))
 
 (setq +doom-dashboard-banner-dir "/home/vavakado/Downloads/"
       +doom-dashboard-banner-file "4ea3b58e342ee8599bf7e02a512ee6a8.jpg"
       +doom-dashboard-functions '(doom-dashboard-widget-banner
                                   doom-dashboard-widget-shortmenu
                                   doom-dashboard-widget-loaded))
-
-
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -52,7 +55,12 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (add-to-list 'org-modules 'org-habit t)
-(setq org-directory "~/Documents/notes/")
+
+(if (string-equal (system-name) "writer")
+    (setq org-directory "/mnt/oldhome/vavakado/Documents/notes/")
+  (setq org-directory "~/Documents/notes/"))
+
+
 (setq deft-directory org-directory)
 (after! deft
   (setq deft-recursive t))
