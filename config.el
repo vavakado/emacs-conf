@@ -201,6 +201,13 @@ methods the save hook cannot detect, like file synchronization."
 
 (map! :leader :desc "Insert sleep duration" "n C-s"  #'org-insert-sleep-duration)
 
+(defun my/org-open-agenda ()
+  (interactive)
+  (find-file (concat org-directory "/agenda.org")))
+
+
+(map! :leader :desc "Open agenda.org" "n C-a"  #'my/org-open-agenda)
+
 (setq org-roam-dailies-capture-templates
       '(("d" "default" entry
          "* Sleep\n:PROPERTIES:\n:SleepTime: xx:xx\n:WakeTime:  xx:xx\n:END:\n- slept well? [ ]\n* %?"
