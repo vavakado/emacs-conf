@@ -141,6 +141,8 @@ methods the save hook cannot detect, like file synchronization."
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+(load! "blip-mode.el")
+
 (use-package! org-agenda-files-track)
 (use-package! websocket
   :after org-roam)
@@ -291,10 +293,10 @@ methods the save hook cannot detect, like file synchronization."
         org-modern-tag nil
         org-modern-progress nil
         org-modern-fold-stars '(("✦" . "✧")   ; sparkle closed, sparkle open
-                                ("✶" . "✷")   ; twinkly star variants
-                                ("♥" . "♡")   ; hearts
+                                ("♦" . "♢")
                                 ("★" . "☆")   ; five-ended star
-                                ("♦" . "♢"))))  ; diamond suit
+                                ("♥" . "♡") ; twinkly star variants
+                                ("✶" . "✷"))))   ; hearts
 
 (setq org-scheduled-past-days 0) ;; agenda not show missed SCHEDULED items
 
@@ -433,20 +435,20 @@ With prefix argument, prompts for starting number."
   "Export English and Russian versions of the given Org file."
   (interactive "fSelect Org file to export: ")
   (let* ((base-name (file-name-sans-extension org-file))
-         (en-file (concat base-name "-en.html"))
-         (ru-file (concat base-name "-ru.html")))
+         (en-file (concat base-name "-en.md"))
+         (ru-file (concat base-name "-ru.md")))
     ;; English
     (let ((org-export-select-tags '("lang_en"))
           (org-export-exclude-tags '("lang_ru"))
           (org-export-with-tags nil))
       (with-current-buffer (find-file-noselect org-file)
-        (org-export-to-file 'html en-file)))
+        (org-export-to-file 'md en-file)))
     ;; Russian
     (let ((org-export-select-tags '("lang_ru"))
           (org-export-exclude-tags '("lang_en"))
           (org-export-with-tags nil))
       (with-current-buffer (find-file-noselect org-file)
-        (org-export-to-file 'html ru-file)))))
+        (org-export-to-file 'md ru-file)))))
 
 (defun my/export-current-org-langs ()
   "Export the current Org file into English and Russian HTML versions."
@@ -457,3 +459,7 @@ With prefix argument, prompts for starting number."
     (unless (string= (file-name-extension org-file) "org")
       (user-error "Current file is not an Org file"))
     (my/export-org-langs org-file)))
+
+(setq doom-modeline-total-line-number t)
+
+(setq user-full-name "Vladimir Rubin")
