@@ -39,8 +39,8 @@
 (if (string-equal (system-name) "writer")
     (setq doom-font (font-spec :family "VictorMono Nerd Font Mono" :size 18)
           doom-big-font (font-spec :family "VictorMono Nerd Font Mono" :size 28 :weight 'semi-bold))
-  (setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 18)
-        doom-big-font (font-spec :family "VictorMono NFM" :size 28 :weight 'semi-bold)))
+  (setq doom-font (font-spec :family "Monofur Nerd Font Mono" :size 18)
+        doom-big-font (font-spec :family "Lilex Nerd Font Mono" :size 28)))
 
 (setq +doom-dashboard-banner-dir "/home/vavakado/Downloads/"
       +doom-dashboard-banner-file "4ea3b58e342ee8599bf7e02a512ee6a8.jpg"
