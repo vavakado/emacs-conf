@@ -40,7 +40,7 @@
     ("\\(\\+\\|-\\|\\*\\|/\\)" 1 font-lock-keyword-face) ;; Operators
     ("\\(\".*?\"\\)" 1 font-lock-string-face) ;; Strings
     ("(\\|)" 0 font-lock-type-face) ;; Parentheses
-    (";;.*$" 0 font-lock-comment-face) ;; Comments
+    (";.*$" 0 font-lock-comment-face) ;; Comments
     ("\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 font-lock-variable-name-face)) ;; Identifiers
   "Font lock keywords for `blip-mode'.")
 
@@ -61,7 +61,7 @@
   :syntax-table blip-mode-syntax-table
   (setq font-lock-defaults '(blip-font-lock-keywords))
   (setq-local indent-line-function 'blip-indent-line)
-  (setq-local comment-start ";; ")
+  (setq-local comment-start "; ")
   (setq-local comment-end "")
   (setq-local c-basic-offset 2)
   (setq-local tab-width 2)
